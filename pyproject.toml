@@ -1,0 +1,9 @@
+[project]
+name = "stock-market-data-predictor-model"
+version = "0.1.0"
+description = "Creating a 'heat number' that indicates if a company is going to introduce new stock volume"
+readme = "README.md"
+requires-python = ">=3.12"
+dependencies = [
+    "yfinance>=0.2.66",
+]
