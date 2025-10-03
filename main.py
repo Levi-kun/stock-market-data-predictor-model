@@ -45,10 +45,8 @@ for ticker in tickers:
 
         info = stock.info if hasattr(stock, "info") else {}
         for key, val in info.items():
-            if (
-                key != "sharesOutstanding"
-                and ptypes.is_scalar(val)
-                and (not isinstance(val, str) or len(str(val)) < 150)
+            if ptypes.is_scalar(val) and (
+                not isinstance(val, str) or len(str(val)) < 150
             ):
                 fundamentals[key] = val
 
@@ -115,6 +113,25 @@ for ticker in tickers:
                     + all_quarters["Capital Expenditures"]
                 )
 
+            buyback_col = None
+            possible_buyback_cols = [
+                "Repurchase Of Capital Stock",
+                "Common Stock Repurchased",
+                "Purchase Of Treasury Stock",
+                "Stock Repurchase",
+            ]
+            for col in possible_buyback_cols:
+                if col in all_quarters.columns:
+                    buyback_col = col
+                    break
+
+            if buyback_col:
+                all_quarters["StockBuybacks"] = all_quarters[
+                    buyback_col
+                ]  # Negative values = repurchases
+                print(f"Got buybacks via '{buyback_col}' for {ticker}.")
+
+            # Reindex/FFill quarters to daily (smooth that quarterly drip to daily highs)
             all_quarters = all_quarters.reindex(data.index, method="ffill").ffill()
 
             fundamentals = pd.concat([fundamentals, all_quarters], axis=1)
@@ -129,6 +146,44 @@ for ticker in tickers:
                 print(f"Fetched annual earnings for {ticker}.")
         except Exception as earn_err:
             print(f"Annual earnings error for {ticker}: {earn_err}")
+
+        quarter_ends = data.resample("Q").last().index
+
+        adjusted_shares = fundamentals["SharesOutstanding"].copy()
+        cum_reduction = 0
+
+        for q_date in quarter_ends:
+            if q_date not in all_quarters.index:
+                continue
+            q_buyback = (
+                all_quarters.loc[q_date, "StockBuybacks"]
+                if "StockBuybacks" in all_quarters.columns
+                else 0
+            )
+            if pd.notna(q_buyback) and q_buyback < 0:  # Negative = repurchase
+                q_slice = data[
+                    (data.index >= (q_date - pd.DateOffset(months=3)))
+                    & (data.index <= q_date)
+                ]
+                avg_price = (
+                    q_slice["Close"].mean()
+                    if not q_slice.empty
+                    else data.loc[q_date, "Close"] if q_date in data.index else None
+                )
+                if pd.notna(avg_price) and avg_price > 0:
+                    est_shares_reduced = abs(q_buyback) / avg_price
+                    cum_reduction += est_shares_reduced
+
+                    mask = fundamentals.index >= q_date
+                    adjusted_shares.loc[mask] = (
+                        adjusted_shares.loc[mask] - cum_reduction
+                    )
+                    print(
+                        f"Estimated {est_shares_reduced:,.0f} shares reduced for {ticker} at {q_date.date()} (buyback: ${abs(q_buyback):,.0f})"
+                    )
+
+        fundamentals["AdjustedSharesOutstanding"] = adjusted_shares
+        print(f"Applied buyback adjustments to shares for {ticker}.")
 
     except Exception as e:
         print(f"Fundamentals error for {ticker}: {e}")
