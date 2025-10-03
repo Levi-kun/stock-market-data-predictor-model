@@ -31,22 +31,21 @@ for ticker in tickers:
     data = yf.download(ticker, start=start_date, end=end_date, interval="1d")
 
     if data.empty:
-        print(f"⚠️ No data for {ticker}, skipping.")
+        print(f"No data for {ticker}, skipping.")
         continue
 
     if isinstance(data.columns, pd.MultiIndex):
         data.columns = ["_".join(col).strip() for col in data.columns.values]
 
     data["Year"] = data.index.year
-
     fundamentals = pd.DataFrame(index=data.index)
 
     try:
         stock = yf.Ticker(ticker)
 
         info = stock.info if hasattr(stock, "info") else {}
-        if "sharesOutstanding" in info:
-            fundamentals["SharesOutstanding"] = info["sharesOutstanding"]
+        for key, val in info.items():
+            fundamentals[key] = val
 
         divs = stock.dividends
         if not divs.empty:
@@ -56,13 +55,29 @@ for ticker in tickers:
         if not splits.empty:
             fundamentals = fundamentals.join(splits.rename("Splits"), how="left")
 
+        try:
+            recs = stock.recommendations
+            if recs is not None and not recs.empty:
+                last_rec = recs.tail(1).to_dict("records")[0]
+                for k, v in last_rec.items():
+                    fundamentals[f"Recommendation_{k}"] = v
+        except Exception:
+            pass
+
+        try:
+            earnings_trend = stock.earnings_trend
+            if earnings_trend is not None and not earnings_trend.empty:
+                latest = earnings_trend.tail(1).to_dict("records")[0]
+                for k, v in latest.items():
+                    fundamentals[f"EarningsTrend_{k}"] = v
+        except Exception:
+            pass
+
         fin = stock.quarterly_financials.T
         bs = stock.quarterly_balance_sheet.T
         cf = stock.quarterly_cashflow.T
 
-        if (
-            not fin.empty or not bs.empty or not cf.empty
-        ):  # this became redudant wamp wamp
+        if not fin.empty or not bs.empty or not cf.empty:
             fin_bs_cf = pd.DataFrame(index=fin.index.union(bs.index).union(cf.index))
             fin_bs_cf["TotalRevenue"] = fin.get("Total Revenue")
             fin_bs_cf["GrossProfit"] = fin.get("Gross Profit")
@@ -89,7 +104,7 @@ for ticker in tickers:
             fundamentals = pd.concat([fundamentals, fin_bs_cf], axis=1)
 
     except Exception as e:
-        print(f"⚠️ Fundamentals fetch failed for {ticker}: {e}")
+        print(f"Fundamentals fetch failed for {ticker}: {e}")
 
     merged = pd.concat([data, fundamentals], axis=1)
 
@@ -97,12 +112,4 @@ for ticker in tickers:
         df_year = df_year.drop(columns=["Year"], errors="ignore")
         file_path = f"{output_dir}/{ticker}_{year}.csv"
         df_year.to_csv(file_path)
-        print(f"✔️ Saved {file_path}")
-
-    merged = pd.concat([data, fundamentals], axis=1)
-
-    for year, df_year in merged.groupby("Year"):
-        df_year = df_year.drop(columns=["Year"], errors="ignore")
-        file_path = f"{output_dir}/{ticker}_{year}.csv"
-        df_year.to_csv(file_path)
-        print(f"✔️ Saved {file_path}")
+        print(f"Saved {file_path}")
