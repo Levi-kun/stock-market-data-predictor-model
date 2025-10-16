@@ -1,0 +1,11 @@
+## VirtualEnv ignore
+.VirtualEnv
+venv/
+MyVenv/
+VirtualEnv/
+### ignore .env 
+
+
+## ignore .env
+.env
+
