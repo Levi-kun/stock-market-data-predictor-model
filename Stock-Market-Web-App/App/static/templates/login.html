@@ -1,14 +1,15 @@
-<!DOCTYPE html>
-<html>
-    <head>
-        <h2>Here you will register </h2>
-    <form action="whereitgonnabestore.php">
+{% extends "base.html" %}
+  
+
+{% block content %}
+
+    <form action="login">
     <label for="username">Username:</label>
     <label for = "password"> Password: </label>
-    <input type="text" id="username" name="username">
+    <input type="text" id="username" namse="username">
     <input type ="text" id = "password" name = "password">
     <input type="submit" value="Submit">
+    <a href = "register">Sign up</a>
     </form>
-        
-    </head>
-</html>
+
+    {% endblock %}

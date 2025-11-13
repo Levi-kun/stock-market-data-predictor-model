@@ -12,12 +12,12 @@ bp = Blueprint("main",__name__)
 @bp.route("/")
 def index():
     ## we will change this to render html home page later on
-    ok = query_test("SELECT 1")
-    if ok:
-        return "<h1> Flask is running! Database Connection is Suceessful! </h1>"
-    else:
-        return "<h1> Flask is running! BUT Datavse test query returned no results! :c </h1>"
-    ##return render_template("index.html")
+    #ok = query_test("SELECT 1")
+    #if ok:
+    #    return "<h1> Flask is running! Database Connection is Suceessful! </h1>"
+    #else:
+    #    return "<h1> Flask is running! BUT Datavse test query returned no results! :c </h1>"
+    return render_template("index.html")
 ## add the route for the login
 
 @bp.route("/login",methods = ["GET","POST"]) ## local host / login

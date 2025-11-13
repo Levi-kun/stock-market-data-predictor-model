@@ -4,16 +4,15 @@
 <head>
     <meta charset ="UTF-8">
     <meta name = "viewport" content = "widt-device-width,initial-scale =1.0">
-    <title> {%block title %}My Flask App{%endblock %}</title>
+    <a href="/"> {%block title %}My Flask App{%endblock %}</a>
     
-    <link rel ="stylesheet" href = "{{ur_for('static,filename ='css/ucnj_style.css')}}">
+    <link rel ="stylesheet" href = "{{url_for('static',filename ='css/ucnj_style.css')}}">
 </head>
 <body>
     <header>
-        <h1>
-            <h1>UCNJ Flask Demo</h1>
+  
+            <h1>Stock Predictor</h1>
 
-        </h1>
 
     </header>
     <main>
@@ -23,7 +22,7 @@
         {%endblock%}
     </main>
     <footer>
-        <p>&copy; 2025 Union COllege </p>
+        <p>&copy; Hopefully Working Soon </p>
 
     </footer>
     <script src = "{{url_for('static',filename = 'js/flash.js')}}"></script>

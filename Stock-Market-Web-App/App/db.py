@@ -1,5 +1,6 @@
 import mysql.connector
 from flask import current_app, g
+import pymysql
 
 def get_db():
 
@@ -9,7 +10,8 @@ def get_db():
             port = current_app.config["DB_PORT"],
             user = current_app.config["DB_USER"],
             password = current_app.config["DB_PASSWORD"],
-            database = current_app.config["DB_NAME"]
+            database = current_app.config["DB_NAME"],
+            cursorclass=pymysql.cursors.DictCursor
         )
            
         
