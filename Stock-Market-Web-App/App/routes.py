@@ -1,40 +1,46 @@
 """
-This routes.py script will contain the routes/path for our application 
+This routes.py script will contain the routes/path for our application
 """
-from flask import Blueprint, render_template,request 
+
+from flask import Blueprint, render_template, request
 from .db import query_test
 from .login import handle_login
 from .register import handle_registration
 
-bp = Blueprint("main",__name__)
+bp = Blueprint("main", __name__)
 
-## initializes a blue print 
+
+## initializes a blue print
 @bp.route("/")
 def index():
     ## we will change this to render html home page later on
-    #ok = query_test("SELECT 1")
-    #if ok:
+    # ok = query_test("SELECT 1")
+    # if ok:
     #    return "<h1> Flask is running! Database Connection is Suceessful! </h1>"
-    #else:
+    # else:
     #    return "<h1> Flask is running! BUT Datavse test query returned no results! :c </h1>"
     return render_template("index.html")
+
+
 ## add the route for the login
 
-@bp.route("/login",methods = ["GET","POST"]) ## local host / login
+
+@bp.route("/login", methods=["GET", "POST"])  ## local host / login
 def login():
     if request.method == "POST":
-        print("Hi!")  ## erase this it is just there to prevent error
+        return handle_login()  # the backend for the /login reciever is in app/login.py
     return render_template("login.html")
 
-@bp.route("/register",methods = ["GET","POST"])
+
+@bp.route("/register", methods=["GET", "POST"])
 def register():
     if request.method == "POST":
-        ## Call the register.py script logic here
-        print("hi")
-
+        handle_registration()  # the backend for the /register POST event is in app/register.py
     return render_template("register.html")
-    
-## about page route 
+
+
+## about page route
+
 
 @bp.route("/about")
 def about():

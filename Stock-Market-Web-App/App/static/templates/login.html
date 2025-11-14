@@ -1,15 +1,14 @@
-{% extends "base.html" %}
-  
+{% extends "authBase.html" %}
 
-{% block content %}
+{% set page_title = "Login" %}
+{% block auth_form %}
+    {% include "_auth_form.html" with 
+        action=url_for('login'), 
+        button_text="Log In",
+        fields=[
+            {"type": "email", "name": "email", "placeholder": "Email"},
+            {"type": "password", "name": "password", "placeholder": "Password"}
+        ]
+    %}
+{% endblock %}
 
-    <form action="login">
-    <label for="username">Username:</label>
-    <label for = "password"> Password: </label>
-    <input type="text" id="username" namse="username">
-    <input type ="text" id = "password" name = "password">
-    <input type="submit" value="Submit">
-    <a href = "register">Sign up</a>
-    </form>
-
-    {% endblock %}
