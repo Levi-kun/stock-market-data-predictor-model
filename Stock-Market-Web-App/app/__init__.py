@@ -7,7 +7,6 @@ def create_app():
 
     app.config.from_object("config.Config")
 
-    print(type(bp))
     init_app(app)
     app.register_blueprint(bp)
     return app
