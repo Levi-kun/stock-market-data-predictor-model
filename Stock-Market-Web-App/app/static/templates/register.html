@@ -1,14 +1,15 @@
 {% extends "authBase.html" %}
-
+{% set mode = "Sign Up" %}
 {% set page_title = "Register" %}
 {% block auth_form %}
-    {% include "_auth_form.html" with 
-        action=url_for('Register'), 
-        button_text="Sign up",
-        fields=[
-            {"type": "email", "name": "email", "placeholder": "Email"},
-            {"type": "password", "name": "password", "placeholder": "Password"}
-        ]
-    %}
+{% set action = url_for('main.register') %}
+{% set button_text = "Sign Up" %}
+{% set fields = [
+    {"type": "email", "name": "email", "placeholder": "Email"},
+    {"type": "password", "name": "password", "placeholder": "Password"}
+] %}
+
+{% include "_auth_form.html" %}
+
 {% endblock %}
 

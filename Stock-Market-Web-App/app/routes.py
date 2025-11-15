@@ -23,6 +23,11 @@ def index():
 
 
 ## add the route for the login
+@bp.route("/dashboard", methods=["GET", "POST"])
+def dashboard():
+    if request.method == "POST":
+        return 1
+    return render_template("dashboard.html")
 
 
 @bp.route("/login", methods=["GET", "POST"])  ## local host / login
@@ -39,9 +44,13 @@ def register():
     return render_template("register.html")
 
 
-## about page route
-
-
 @bp.route("/about")
 def about():
     return render_template("about.html")
+
+
+@bp.route("/feedback", methods=["GET", "POST"])
+def feedback():
+    if request.method == "POST":
+        return 0
+    return render_template("feedback.html")
