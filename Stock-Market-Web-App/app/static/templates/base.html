@@ -19,12 +19,12 @@
         </h1>
 
         <nav class="navMenu">
-           <ul>
-        <li><a href="{{ url_for('main.dashboard') }}">Dashboard</a></li>
-        <li><a href="{{ url_for('main.about') }}">About</a></li>
-        <li><a href="{{ url_for('main.feedback')}}">Feedback</a></li>
-        <li><a href="{{ url_for('main.login') }}" class="login">Login</a></li>
-    </ul>
+             <ul>
+                     <li class="{% if active == 'dashboard' %} active {% endif %}"><a href="{{ url_for('main.dashboard') }}">Dashboard</a></li>
+                <li class="{% if active == 'about' %} active {% endif %}"><a href="{{ url_for('main.about') }}">About</a></li>
+                <li class="{% if active == 'feedback' %} active {% endif %}"><a href="{{ url_for('main.feedback')}}">Feedback</a></li>
+                <li class="login {% if active == 'login' %} active {% endif %}"><a href="{{ url_for('main.login') }}">Login</a></li>
+            </ul>
         </nav>
     </div>
 </header>
