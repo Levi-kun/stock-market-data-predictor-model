@@ -28,7 +28,8 @@
         </nav>
     </div>
 </header>
-    <main>
+<div class="box">
+    <main class="content">
         {%block content%}
         <!-- this is a page specific , content will go here when a child template overrides this block -->
 
@@ -36,8 +37,10 @@
     </main>
     <footer>
         <p>&copy; Hopefully Working Soon </p>
+        <p class="credits">Made by: Ricardo M., Eduardo P., and Levi S.</p>
 
     </footer>
+</div>
     <script src = "{{url_for('static',filename = 'js/flash.js')}}"></script>
 </body>
 

@@ -1,3 +1,19 @@
-{% extends "base.html" %}
-
+{% extends "authBase.html" %}
+{% set mode = "feedback" %}
+{% set page_title ="feedback" %}
 <!-- we need to creatre the structure of the feedback page, (hint: it will be form) -->
+
+{% block auth_form %}
+{% set action = url_for('main.feedback') %}
+{% set button_text = "Submit Feedback" %}
+{% set fields = [
+    {"type": "text", "name": "name", "placeholder": "Name"},
+    {"type": "text", "name": "major", "placeholder": "Major"},
+    {"type": "email", "name": "email", "placeholder": "Email"},
+    {"type": "text", "name": "feedback", "placeholder": "Feedback"}
+] %}
+
+{% include "_auth_form.html" %}
+
+{% endblock %}
+
