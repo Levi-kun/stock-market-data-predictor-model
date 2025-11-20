@@ -1,0 +1,7 @@
+<form method="POST" action="{{ action }}">
+        {% for field in fields %}
+        <input type="{{ field.type }}" name="{{ field.name }}" placeholder="{{ field.placeholder }}" required />
+        {% endfor %}
+
+        <button type="submit">{{ button_text }}</button>
+</form>
