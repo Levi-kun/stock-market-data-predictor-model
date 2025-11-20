@@ -76,6 +76,10 @@ def dashboard():
         y=[60, 25, 15],
         title="Sentiment over Stock Amount",
     )
+    # Convert plots to HTML
+    graph1 = fig1.to_html(full_html=False)
+    graph2 = fig2.to_html(full_html=False)
+    graph3 = fig3.to_html(full_html=False)
 
     return render_template(
         "dashboard.html",
