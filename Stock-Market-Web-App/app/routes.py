@@ -2,6 +2,7 @@ from flask import Blueprint, render_template, request
 from .db import query_test
 from .login import handle_login
 from .register import handle_registration
+import plotly.express as px
 
 bp = Blueprint("main", __name__)
 
@@ -47,7 +48,28 @@ def index():
 def dashboard():
     if request.method == "POST":
         return 1
-    return render_template("dashboard.html", active="dashboard")
+    # SAMPLE  DATA <- NOT REAL! FOR DEMO ONLY
+    fig1 = px.line(x=[1, 2, 3], y=[2, 5, 3], title="Stock Over Price")
+    fig2 = px.pie(
+        values=[40, 30, 30],
+        names=["CS", "Math", "Bio"],
+        title="Feature 1 vs Stock Amount",
+    )
+    fig3 = px.bar(
+        x=["Good", "Neutral", "Bad"], y=[50, 20, 5], title="Sentiment over Stock Amount"
+    )
+
+    graph1 = fig1.to_html(full_html=False)
+    graph2 = fig2.to_html(full_html=False)
+    graph3 = fig3.to_html(full_html=False)
+
+    return render_template(
+        "dashboard.html",
+        active="dashboard",
+        graph1=graph1,
+        graph2=graph2,
+        graph3=graph3,
+    )
 
 
 @bp.route("/login", methods=["GET", "POST"])  ## local host / login
