@@ -1,8 +1,11 @@
 from flask import Blueprint, render_template, request
+from .dashboard import handle_dashboard
 from .db import query_test
+from .feedback import handle_feedback
 from .login import handle_login
 from .register import handle_registration
 import plotly.express as px
+import pandas as pd
 
 bp = Blueprint("main", __name__)
 
@@ -47,21 +50,32 @@ def index():
 @bp.route("/dashboard", methods=["GET", "POST"])
 def dashboard():
     if request.method == "POST":
-        return 1
-    # SAMPLE  DATA <- NOT REAL! FOR DEMO ONLY
-    fig1 = px.line(x=[1, 2, 3], y=[2, 5, 3], title="Stock Over Price")
+        return handle_dashboard()
+
+    # Sample data
+    days = [1, 2, 3, 4, 5]
+    prices = [120, 135, 128, 142, 150]
+    amount = [1000, 1000, 900, 900, 850]
+
+    # Put data into a DataFrame
+    df = pd.DataFrame({"Day": days, "Price": prices, "Stock Amount": amount})
+
+    # Line chart: Price & Stock Amount over Days
+    fig1 = px.line(df, x="Day", y=["Price", "Stock Amount"], title="Stock Over Price")
+
+    # Pie chart: Sample feature distribution (matching stock theme)
     fig2 = px.pie(
-        values=[40, 30, 30],
-        names=["CS", "Math", "Bio"],
+        names=["Feature A", "Feature B", "Feature C"],
+        values=[50, 30, 20],
         title="Feature 1 vs Stock Amount",
     )
-    fig3 = px.bar(
-        x=["Good", "Neutral", "Bad"], y=[50, 20, 5], title="Sentiment over Stock Amount"
-    )
 
-    graph1 = fig1.to_html(full_html=False)
-    graph2 = fig2.to_html(full_html=False)
-    graph3 = fig3.to_html(full_html=False)
+    # Bar chart: Sentiment over stock amounts
+    fig3 = px.bar(
+        x=["Good", "Neutral", "Bad"],
+        y=[60, 25, 15],
+        title="Sentiment over Stock Amount",
+    )
 
     return render_template(
         "dashboard.html",
@@ -94,5 +108,5 @@ def about():
 @bp.route("/feedback", methods=["GET", "POST"])
 def feedback():
     if request.method == "POST":
-        return 0
+        return handle_feedback()
     return render_template("feedback.html", active="feedback")
