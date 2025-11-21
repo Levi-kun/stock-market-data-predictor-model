@@ -1,0 +1,159 @@
+/** web theme colors */
+
+/** Base colors */
+:root {
+        --clr-dark-a0: #000000;
+        --clr-light-a0: #ffffff;
+
+        /** Theme primary colors */
+        --clr-primary-a0: #45bf5d;
+        --clr-primary-a10: #60c76f;
+        --clr-primary-a20: #77ce81;
+        --clr-primary-a30: #8cd592;
+
+        /** Theme surface colors */
+        --clr-surface-a0: #262523;
+        --clr-surface-a10: #3a3938;
+        --clr-surface-a20: #504f4d;
+        --clr-surface-a30: #676664;
+
+        /** Theme tonal surface colors */
+        --clr-surface-tonal-a0: #2b3329;
+        --clr-surface-tonal-a10: #3f473d;
+        --clr-surface-tonal-a20: #545b53;
+        --clr-surface-tonal-a30: #6b7169;
+
+        /** Success colors */
+        --clr-success-a0: #22946e;
+        --clr-success-a10: #47d5a6;
+        --clr-success-a20: #9ae8ce;
+
+        /** Warning colors */
+        --clr-warning-a0: #a87a2a;
+        --clr-warning-a10: #d7ac61;
+        --clr-warning-a20: #ecd7b2;
+
+        /** Danger colors */
+        --clr-danger-a0: #9c2121;
+        --clr-danger-a10: #d94a4a;
+        --clr-danger-a20: #eb9e9e;
+
+        /** Info colors */
+        --clr-info-a0: #21498a;
+        --clr-info-a10: #4077d1;
+        --clr-info-a20: #92b2e5;
+}
+
+html,
+body {
+        height: 100%;
+        margin: 0;
+        padding: 0;
+}
+
+body {
+        font-family: "Space Mono", monospace;
+        display: flex;
+        flex-direction: column;
+        min-height: 100vh;
+        font-weight: 400;
+        font-style: normal;
+        color: var(--clr-light-a0);
+        background-color: var(--clr-surface-tonal-a0);
+        padding: 20px;
+}
+
+h1 {
+        color: var(--clr-primary-a0);
+}
+
+a {
+        text-decoration: none;
+        color: var(--clr-light-a0);
+}
+
+h1 a {
+        font-weight: 500;
+        padding-bottom: 6px;
+}
+
+main {
+        padding: 1rem;
+}
+
+footer {
+        display: flex;
+        justify-content: space-evenly;
+}
+
+.navHeader {
+        background: var(--clr-surface-a0);
+        padding: 1rem 2rem;
+        border-bottom: 2px solid var(--clr-primary-a20);
+}
+
+.navContainer {
+        max-width: 1200px;
+        margin: 0 auto;
+
+        display: flex;
+        align-items: center;
+}
+
+.navMenu {
+        flex: 1;
+        align-items: center;
+        padding: 0.1rem;
+        padding-left: 2rem;
+}
+
+.webTitle a {
+        color: var(--clr-primary-a20);
+        text-decoration: none;
+        font-size: 1.8rem;
+        font-weight: 700;
+        font-family: "Space Mono", monospace;
+}
+
+.navMenu ul {
+        list-style: none;
+        margin: 1rem;
+        margin-top: 1.3rem;
+        margin-bottom: 0.9rem;
+        padding: 0;
+
+        display: flex;
+        gap: 2rem;
+}
+
+.navMenu a {
+        text-decoration: none;
+        text-align: center;
+        color: var(--clr-light-a0);
+        font-weight: 500;
+        transition: 0.25s ease;
+        border-radius: 6px;
+        padding: 0.3rem 0.9rem;
+        margin: 0;
+}
+
+.navMenu ul {
+        align-items: center;
+}
+
+.navMenu a:hover {
+        color: var(--clr-primary-a20);
+        background: var(--clr-surface-tonal-a10);
+}
+
+.navMenu .login {
+        margin-left: auto;
+        padding: 0.5rem 0.9rem;
+        color: var(--clr-light-a0);
+        border-radius: 6px;
+        font-weight: 700;
+}
+
+.navMenu .active a {
+        color: var(--clr-primary-a20);
+}
