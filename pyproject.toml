@@ -7,7 +7,9 @@ requires-python = ">=3.12"
 dependencies = [
     "bs4>=0.0.2",
     "dotenv>=0.9.9",
+    "index-py>=0.21.16",
     "pandas>=2.3.2",
     "requests>=2.32.5",
+    "scikit-learn>=1.7.2",
     "yfinance>=0.2.66",
 ]
