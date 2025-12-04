@@ -10,7 +10,7 @@
     <div class="authSwitch">
                 {% if mode == "login" %}
                         <a href="{{ url_for('main.register') }}" >Signing up?</a>
-                {% elif mode == "Sign Up" %}
+             `   {% elif mode == "Sign Up" %}
                         <a href="{{ url_for('main.login') }}">Logging in?</a>
                 {% endif %}
     </div>
