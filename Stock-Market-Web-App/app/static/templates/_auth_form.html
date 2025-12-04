@@ -1,7 +1,36 @@
+<script>
+        async function sendRequets() {
+        const ack = document.querySelector(".acknoledge");
+
+    try {
+        const res = await fetch("/check", {
+            method: "POST",
+            headers: { "Content-Type": "application/json" },
+            body: JSON.stringify({}) // whatever you want to send
+        });
+
+        const data = await res.json();
+
+        if (data.success === true) {
+            ack.textContent = "Success!";
+            ack.style.color = "green";
+        } else {
+            ack.textContent = "Error: Something went wrong.";
+            ack.style.color = "red";
+        }
+
+    } catch (err) {
+        ack.textContent = "Network error.";
+        ack.style.color = "red";
+    }
+}
+
+</script>
+
 <form method="POST" action="{{ action }}">
         {% for field in fields %}
         <input type="{{ field.type }}" name="{{ field.name }}" placeholder="{{ field.placeholder }}" required />
         {% endfor %}
 
-        <button type="submit">{{ button_text }}</button>
+        <button type="submit" onclick="sendRequets()">{{ button_text }}</button>
 </form>

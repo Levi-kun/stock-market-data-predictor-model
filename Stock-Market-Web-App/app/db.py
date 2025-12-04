@@ -21,27 +21,17 @@ def get_db():
             user=current_app.config["DB_USER"],
             password=current_app.config["DB_PASSWORD"],
         )
-
     return g.conn
 
 
-# this closes the db connection
-
-
 def close_db(e=None):
-    db = g.pop("db", None)
-    if db is not None:
-        db.close()
-
-
-# this links the db to the application
+    conn = g.pop("conn", None)
+    if conn is not None:
+        conn.close()
 
 
 def init_app(app):
     app.teardown_appcontext(close_db)
-
-
-# this is a test
 
 
 def query_test(sql, params=()):

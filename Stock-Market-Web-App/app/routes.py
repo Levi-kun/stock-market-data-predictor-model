@@ -1,4 +1,4 @@
-from flask import Blueprint, render_template, request
+from flask import Blueprint, render_template, request, jsonify
 from .dashboard import handle_dashboard
 from .db import query_test
 from .feedback import handle_feedback
@@ -112,5 +112,10 @@ def about():
 @bp.route("/feedback", methods=["GET", "POST"])
 def feedback():
     if request.method == "POST":
-        return handle_feedback()
+        name = request.form.get("name")
+        email = request.form.get("email")
+        major = request.form.get("major")
+        feedback = request.form.get("feedback")
+
+        return jsonify(success=handle_feedback(name, major, email, feedback))
     return render_template("feedback.html", active="feedback")
