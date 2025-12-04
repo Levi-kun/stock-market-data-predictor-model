@@ -1,81 +1,77 @@
-#flask import statement
-import yfinance as yf
-##from datetime import outcome
-#import time accesed from here from db?
-#import db manager statement (need name of file) (import database as db), then
+from flask import Blueprint, render_template, request
+from .dashboard import handle_dashboard
+from .db import query_test
+from .feedback import handle_feedback
+from .login import handle_login
+from .register import handle_registration
+import plotly.express as px
+import pandas as pd
 
-app = Flask(whatevername_itis)
-app.key = 'trillion_dollar_stockmarket_predictor'
+bp = Blueprint("main", __name__)
 
-@app.route('/api/v1/signup', methods=['POST'])
-def signup():
-    data = request.get_json()
-    username = data['username']
-    password = data['password']
-    
-    db_manager.add_user(username, password)
-    return jsonify({'message': 'User signed up successfully!'})
-#if ste error user or pswrd
-    if not username or not password: 
-        return jsonify({'error': 'Username and password are required!'})    
-    
-#seend to db
-success = db_manager.add_user(username, password)
-    if not success:
-        return jsonify({'error': 'Username Already Exists!'})
-    return jsonify({'message': 'User Signed up Successfully!'})
+@bp.route("/")
+def index():
+    return render_template("index.html")
 
-@app.route('/api/v1/login', methods=['POST'])
+
+@bp.route("/dashboard", methods=["GET", "POST"])
+def dashboard():
+    if request.method == "POST":
+        return handle_dashboard()
+
+    days = [1, 2, 3, 4, 5]
+    prices = [120, 135, 128, 142, 150]
+    amount = [1000, 1000, 900, 900, 850]
+
+    df = pd.DataFrame({"Day": days, "Price": prices, "Stock Amount": amount})
+
+    fig1 = px.line(df, x="Day", y=["Price", "Stock Amount"], title="Stock Over Price")
+
+    fig2 = px.pie(
+        names=["Feature A", "Feature B", "Feature C"],
+        values=[50, 30, 20],
+        title="Feature 1 vs Stock Amount",
+    )
+
+    fig3 = px.bar(
+        x=["Good", "Neutral", "Bad"],
+        y=[60, 25, 15],
+        title="Sentiment over Stock Amount",
+    )
+
+    graph1 = fig1.to_html(full_html=False)
+    graph2 = fig2.to_html(full_html=False)
+    graph3 = fig3.to_html(full_html=False)
+
+    return render_template(
+        "dashboard.html",
+        active="dashboard",
+        graph1=graph1,
+        graph2=graph2,
+        graph3=graph3,
+    )
+
+@bp.route("/login", methods=["GET", "POST"])
 def login():
-    data = request.get_json()
-    username = data['username']
-    password = data['password']
-    
-    if db_manager.verify_login(username, password):
-        session['user'] = username #cookie
-        return jsonify({'message': 'Login Successful', 'redirect': '/home'})
-    else:
-        return jsonify({'message': 'Invalid Credentials'})
-@app.route('/home')
-def home_page():
-    if 'user' not in session:
-        return jsonify({'error': 'Unauthorized. Please login.'})    
-    return "Welcome to the Home Page (hom.html)"
+    if request.method == "POST":
+        return handle_login()
+    return render_template("login.html", active="login")
 
-@app.route('/index', methods=['POST'])#$$$$$$$$$$$
-def get_stock_index():
-    data = request.get_json()
-    ticker = data.get('ticker')
-    
-    print(f"Processing request for: {ticker}")
 
-    #2 week timer
-    record = db_manager.get_stock_record(ticker)
-    use_cache = False
+@bp.route("/register", methods=["GET", "POST"])
+def register():
+    if request.method == "POST":
+        handle_registration()
+    return render_template("register.html", active="login")
 
-    if record:
-        last_date = datetime.strptime(record['date'], '%Y-%m-%d')#thanks gemini for the date function
-        days_diff = (datetime.now() - last_date).days
-        
-        if days_diff < 14:
-            use_cache = True
-            print(f"Found fresh data in DB ({days_diff} days old).")
 
-    if use_cache:
-        return jsonify({'ticker': ticker,'ratio': record['ratio'],'source': 'database'})
+@bp.route("/about")
+def about():
+    return render_template("about.html", active="about")
 
-    print("Data missing or old. Fetching from API...")
-    try:
-        stock = yf.Ticker(ticker)
-        hist = stock.history(period="1mo")
 
-        if hist.empty:
-            return jsonify({'error': 'Ticker not found'})
-
-#ratio algorithm??? right? somewhere before
-        today_str = datetime.now().strftime('%Y-%m-%d')
-        db_manager.save_stock_record(ticker, ratio, today_str)
-
-        return jsonify({'ticker': ticker,'ratio': ratio,'source': 'api_calculation'})
-    
-    #any statement if theres no internet or for whatever reasson yahoo has no data on the ticker or smth else??
+@bp.route("/feedback", methods=["GET", "POST"])
+def feedback():
+    if request.method == "POST":
+        return handle_feedback()
+    return render_template("feedback.html", active="feedback")
