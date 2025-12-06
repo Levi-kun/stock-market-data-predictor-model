@@ -368,7 +368,6 @@ for ticker in tickers:
     print(f"\n  📊 Calls for {ticker}: {api_call_count}")
 
 print("\n" + "=" * 60)
-print("✨ Stable endpoint glow-up locked! No more 403s or overlap BS.")
 print("=" * 60)
 print(
     f"Total calls: {api_call_count}/250 | Data in '{output_dir}' – FCF, shares, ROE primed for buyback magic."

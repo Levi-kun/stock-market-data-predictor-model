@@ -114,8 +114,7 @@ def feedback():
     if request.method == "POST":
         name = request.form.get("name")
         email = request.form.get("email")
-        major = request.form.get("major")
-        feedback = request.form.get("feedback")
+        feedback = request.form.get("message")
 
-        return jsonify(success=handle_feedback(name, major, email, feedback))
+        return jsonify(success=handle_feedback(name, email, feedback))
     return render_template("feedback.html", active="feedback")

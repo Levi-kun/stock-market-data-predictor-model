@@ -32,9 +32,46 @@ Feedback - My Flask App
                 <textarea id="message" name="message" rows="5" placeholder="Your feedback..." required></textarea>
             </div>
 
-            <button type="submit">Submit Feedback</button>
+            <button type="submit" onclick="sendRequets()">Submit Feedback</button>
         </form>
     </div>
 
+    <div class="acknoledge"> </div>
+
 </div>
 {% endblock %}
+
+
+<script>
+async function sendRequets() {
+    const ack = document.querySelector(".acknoledge");
+
+    // 1. Try to grab the form (if it exists in the block)
+    const form = document.querySelector("form");
+
+    // 2. Use form action OR fallback to current page route
+    const url = form?.action || window.location.pathname;
+
+    try {
+        const res = await fetch(url, {
+            method: "POST",
+            headers: { "Content-Type": "application/json" },
+            body: JSON.stringify({})  // or your fields
+        });
+
+        const data = await res.json();
+
+        if (data.success === true) {
+            ack.textContent = "Success!";
+            ack.style.color = "green";
+        } else {
+            ack.textContent = "Error: Something went wrong.";
+            ack.style.color = "red";
+        }
+
+    } catch (err) {
+        ack.textContent = "Network error.";
+        ack.style.color = "red";
+    }
+}
+</script>
