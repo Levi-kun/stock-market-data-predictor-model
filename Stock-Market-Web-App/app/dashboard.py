@@ -3,7 +3,7 @@ from flask_login import login_required
 import pandas as pd
 import yfinance as yf
 import os
-from app.algorith import StockPredictor 
+from .algorith import StockPredictor
 
 BASE_DIR = os.path.dirname(os.path.abspath(__file__))
 MODEL_PATH = os.path.join(BASE_DIR, "alg/model.pkl")
