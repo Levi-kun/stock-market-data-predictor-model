@@ -4,33 +4,37 @@
 
 {% block auth_form %}
 
-<div class="auth-card">
+<div class="auth-background">
 
-    <!-- Header -->
-    <div class="auth-header">
-        <h1>Create Account</h1>
-        <p>Sign up to get started</p>
-    </div>
+    <div class="auth-card fade-in">
 
-    <!-- Form -->
-    <div class="auth-body">
+        <!-- Header -->
+        <div class="auth-header slide-down">
+            <h1>Create Account</h1>
+            <p>Sign up to get started</p>
+        </div>
 
-        {% set action = url_for('main.register') %}
-        {% set button_text = "Sign Up" %}
-        {% set fields = [
-            {"type": "email", "name": "email", "placeholder": "Email"},
-            {"type": "password", "name": "password", "placeholder": "Password"}
-        ] %}
+        <!-- Registration Form -->
+        <div class="auth-body fade-in-delay">
 
-        {% include "_auth_form.html" %}
-    </div>
+            {% set action = url_for('main.register') %}
+            {% set button_text = "Sign Up" %}
+            {% set fields = [
+                {"type": "email", "name": "email", "placeholder": "Email"},
+                {"type": "password", "name": "password", "placeholder": "Password"}
+            ] %}
 
-    <!-- Footer -->
-    <div class="auth-footer">
-        <p>
-            Already have an account? 
-            <a href="{{ url_for('main.login') }}">Log in</a>
-        </p>
+            {% include "_auth_form.html" %}
+        </div>
+
+        <!-- Footer -->
+        <div class="auth-footer fade-in-delay-2">
+            <p>
+                Already have an account? 
+                <a href="{{ url_for('main.login') }}">Log in</a>
+            </p>
+        </div>
+
     </div>
 
 </div>

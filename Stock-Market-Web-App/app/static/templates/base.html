@@ -4,11 +4,27 @@
 <head>
     <meta charset ="UTF-8">
     <meta name = "viewport" content = "widt-device-width,initial-scale =1.0">
-    
         <link rel ="stylesheet" href = "{{url_for('static',filename ='css/ucnj_style.css')}}">
+        <!---Style sheet for the base-->
+        <link rel = "stylesheet" href = "{{url_for('static',filename ='css/base.css')}}">
+        <!--Style sheet for the register file-->
+        <link rel = "stylesheet" href = "{{url_for('static',filename='css/register.css')}}">
+        <!--Style sheet for the about page -->
+        <link rel = "stylesheet" href = "{{url_for('static',filename='css/about.css')}}">
+        <!--- Style sheet for the login page-->
+        <link rel = "stylesheet" href = "{{url_for('static',filename='css/login.css')}}">
+        <!--- Style sheet for the sign up page -->
+        
+        <link rel = "stylesheet" href = "{{url_for('static',filename='css/feedback.css')}}">    
+
+      
+
+
+        
         <link rel="preconnect" href="https://fonts.googleapis.com">
         <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
         <link href="https://fonts.googleapis.com/css2?family=Space+Mono:ital,wght@0,400;0,700;1,400;1,700&display=swap" rel="stylesheet">
+        <link href="https://fonts.googleapis.com/css2?family=Space+Mono:ital,wght@0,400;0,700;1,400;1,700&display=swap" rel="stylesheet1">
 
 </head>
 <body>
@@ -20,10 +36,10 @@
 
         <nav class="navMenu">
              <ul>
-                     <li class="{% if active == 'dashboard' %} active {% endif %}"><a href="{{ url_for('main.dashboard') }}">Dashboard</a></li>
+                <li class="{% if active == 'dashboard' %} active {% endif %}"><a href="{{ url_for('main.dashboard') }}">Dashboard</a></li>
                 <li class="{% if active == 'about' %} active {% endif %}"><a href="{{ url_for('main.about') }}">About</a></li>
                 <li class="{% if active == 'feedback' %} active {% endif %}"><a href="{{ url_for('main.feedback')}}">Feedback</a></li>
-                <li class="login {% if active == 'login' %} active {% endif %}"><a href="{{ url_for('main.login') }}">Login</a></li>
+                <li class="{% if active == 'login' %} active {% endif %}"><a href="{{ url_for('main.login') }}">Login</a></li>
             </ul>
         </nav>
     </div>
@@ -31,13 +47,16 @@
 <div class="box">
     <main class="content">
         {%block content%}
+        
         <!-- this is a page specific , content will go here when a child template overrides this block -->
 
         {%endblock%}
     </main>
     <footer>
-        <p>&copy; Hopefully Working Soon </p>
-        <p class="credits">Made by: Ricardo M., Eduardo P., and Levi S.</p>
+        <p>&copy; Stock Predictor LLC </p>
+        
+        <p class="credits">Credits:</p>
+        <p class ="people-text"> Front-End: Eduardo P , Database Mana: Levi S. Back-End: Ricardo M.</p>
     </footer>
     <script src = "{{url_for('static',filename = 'js/flash.js')}}"></script>
 </body>

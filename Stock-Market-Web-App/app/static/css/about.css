@@ -1,0 +1,170 @@
+/* Full-page background image */
+.about-background {
+    background-image: url('static/images/stock.webp');
+    background-size: cover;
+    background-position: center;
+    background-attachment: fixed;
+    min-height: 100vh;
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    padding: 80px 20px;
+    position: relative;
+}
+
+/* Dark overlay behind content for readability */
+.about-background::before {
+    content: "";
+    position: absolute;
+    top: 0;
+    left: 0;
+    width: 100%;
+    height: 100%;
+    background: rgba(248, 248, 248, 0.6); /* dark overlay for contrast */
+    z-index: 0;
+}
+
+/* About container on top */
+.about-container {
+    position: relative;
+    z-index: 1;
+    max-width: 900px;
+    background-color: rgba(255, 0, 0, 0.9); /* slightly transparent white */
+    padding: 50px 40px;
+    border-radius: 12px;
+    box-shadow: 0 12px 30px rgba(0, 0, 0, 0.3);
+}
+
+/* Header Styles */
+.about-header {
+    text-align: center;
+    margin-bottom: 50px;
+}
+
+.about-title {
+    font-size: 3rem;
+    font-weight: 700;
+    color: #ffffff;
+    margin-bottom: 15px;
+}
+
+.about-subtitle {
+    font-size: 1.3rem;
+    color: #555;
+    line-height: 1.8;
+}
+
+/* Section Styles */
+.about-section {
+    margin-bottom: 40px;
+}
+
+.about-section h2 {
+    font-size: 2rem;
+    margin-bottom: 15px;
+    color: #34495e;
+}
+
+.about-section p {
+    font-size: 1.1rem;
+    color: #ffffff;
+    line-height: 1.7;
+}
+
+/* List Styles */
+.about-list {
+    list-style: none;
+    padding-left: 0;
+}
+
+.about-list li {
+    font-size: 1.1rem;
+    padding: 10px 0;
+    position: relative;
+    padding-left: 30px;
+}
+
+.about-list li::before {
+    content: "•";
+    position: absolute;
+    left: 0;
+    color: #3498db;
+    font-weight: bold;
+}
+
+/* Button Styles */
+.home-button {
+    display: inline-block;
+    padding: 14px 30px;
+    background-color: #3498db;
+    color: rgb(255, 255, 255);
+    text-decoration: none;
+    border-radius: 6px;
+    font-weight: 500;
+    transition: transform 0.3s ease, background-color 0.3s ease;
+    margin-top: 20px;
+}
+
+.home-button:hover {
+    background-color: #2980b9;
+    transform: translateY(-3px);
+}
+
+/* Animations */
+.fade-in {
+    animation: fadeIn 1s ease forwards;
+    opacity: 0;
+}
+
+.fade-in-delay {
+    animation: fadeIn 1s ease 0.3s forwards;
+    opacity: 0;
+}
+
+.fade-in-delay-2 {
+    animation: fadeIn 1s ease 0.6s forwards;
+    opacity: 0;
+}
+
+.fade-in-delay-3 {
+    animation: fadeIn 1s ease 0.9s forwards;
+    opacity: 0;
+}
+
+.slide-down {
+    animation: slideDown 0.8s ease forwards;
+    opacity: 0;
+}
+
+.bounce-hover:hover {
+    animation: bounce 0.5s;
+}
+
+@keyframes fadeIn {
+    to { opacity: 1; }
+}
+
+@keyframes slideDown {
+    from { transform: translateY(-20px); opacity: 0; }
+    to { transform: translateY(0); opacity: 1; }
+}
+
+@keyframes bounce {
+    0%, 100% { transform: translateY(0); }
+    50% { transform: translateY(-6px); }
+}
+
+/* Responsive */
+@media (max-width: 768px) {
+    .about-container {
+        padding: 40px 20px;
+    }
+
+    .about-title {
+        font-size: 2.2rem;
+    }
+
+    .about-section h2 {
+        font-size: 1.6rem;
+    }
+}

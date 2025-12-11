@@ -1,6 +1,6 @@
 /* Full-page background */
-.auth-background {
-    background-image: url('static/images/auth-bg.webp'); /* optional background */
+.login-background {
+    background-image: url('static/images/login-bg.webp'); /* Use a nice background */
     background-size: cover;
     background-position: center;
     min-height: 100vh;
@@ -12,54 +12,54 @@
 }
 
 /* Overlay for readability */
-.auth-background::before {
+.login-background::before {
     content: "";
     position: absolute;
     top: 0;
     left: 0;
     width: 100%;
     height: 100%;
-    background: rgba(231, 231, 231, 0.6); /* semi-transparent dark overlay */
+    background: rgba(255, 218, 218, 0.6);
     z-index: 0;
 }
 
-/* Auth card */
-.auth-card {
+/* Login card */
+.login-card {
     position: relative;
     z-index: 1;
-    background-color: rgba(255,255,255,0.95); /* slightly transparent */
+    background-color: rgba(255, 0, 0, 0.95);
     padding: 50px 40px;
     border-radius: 12px;
     max-width: 400px;
     width: 100%;
-    box-shadow: 0 12px 30px rgba(255, 4, 4, 0.3);
+    box-shadow: 0 12px 30px rgba(0,0,0,0.3);
     text-align: center;
 }
 
 /* Header */
-.auth-header h1 {
+.login-header h1 {
     font-size: 2.5rem;
     margin-bottom: 10px;
-    color: rgb(251, 251, 251);
+    color: #2c3e50;
 }
 
-.auth-header p {
+.login-header p {
     font-size: 1rem;
     color: #555;
     margin-bottom: 30px;
 }
 
-/* Form inputs */
-.auth-body input {
+/* Form styling (assumes your _auth_form.html uses standard inputs) */
+.login-body input {
     width: 100%;
     padding: 12px 15px;
-    margin-bottom: 20px;
-    border-radius: 6px;
-    border: 1px solid #ccc;
+    margin-bottom: 10px;
+    border-radius: 10px;
+    border: 1px solid #000000;
     font-size: 1rem;
 }
 
-.auth-body button {
+.login-body button {
     width: 100%;
     padding: 12px;
     background-color: #3498db;
@@ -72,24 +72,24 @@
     transition: background-color 0.3s ease, transform 0.3s ease;
 }
 
-.auth-body button:hover {
+.login-body button:hover {
     background-color: #2980b9;
     transform: translateY(-2px);
 }
 
 /* Footer */
-.auth-footer p {
+.login-footer p {
     margin-top: 20px;
-    color: #dfd9d9;
+    color: #555;
 }
 
-.auth-footer a {
+.login-footer a {
     color: #3498db;
     text-decoration: none;
     font-weight: 500;
 }
 
-.auth-footer a:hover {
+.login-footer a:hover {
     text-decoration: underline;
 }
 
@@ -125,11 +125,11 @@
 
 /* Responsive */
 @media (max-width: 480px) {
-    .auth-card {
+    .login-card {
         padding: 40px 25px;
     }
 
-    .auth-header h1 {
+    .login-header h1 {
         font-size: 2rem;
     }
 }
