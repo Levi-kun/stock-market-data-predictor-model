@@ -1,5 +1,6 @@
 from flask import Blueprint, render_template, request, jsonify
-from .dashboard import handle_dashboard
+from flask_login import login_required
+from .dashboard import dashboard
 from .db import query_test
 from .feedback import handle_feedback
 from .login import handle_login
@@ -48,17 +49,10 @@ def index():
 
 
 @bp.route("/dashboard", methods=["GET", "POST"])
+@login_required
 def dashboard():
     if request.method == "POST":
-        return handle_dashboard()
-
-    # Sample data
-    days = [1, 2, 3, 4, 5]
-    prices = [120, 135, 128, 142, 150]
-    amount = [1000, 1000, 900, 900, 850]
-
-    # Put data into a DataFrame
-    df = pd.DataFrame({"Day": days, "Price": prices, "Stock Amount": amount})
+        return dashboard()
 
     # Line chart: Price & Stock Amount over Days
     fig1 = px.line(df, x="Day", y=["Price", "Stock Amount"], title="Stock Over Price")

@@ -18,6 +18,7 @@
         {% set action = url_for('main.register') %}
         {% set button_text = "Sign Up" %}
         {% set fields = [
+            {"type": "name", "name":"name", "placeholder":"Name"},
             {"type": "email", "name": "email", "placeholder": "Email"},
             {"type": "password", "name": "password", "placeholder": "Password"}
         ] %}

@@ -1,19 +1,32 @@
-from flask import render_template, flash, redirect, url_for
-from flask_login import current_user
-from app import db
-from app.models import User
-from app.auth.forms import RegistrationForm
+from flask import request, redirect, url_for, flash
+from flask_login import login_user
+from .auth_service import create_user
+from .auth import get_user_by_email
 
-@bp.route('/register', methods=['GET', 'POST'])
-def register():
-    if current_user.is_authenticated:
-        return redirect(url_for('index'))
-    form = RegistrationForm()
-    if form.validate_on_submit():
-        user = User(username=form.username.data)
-        user.set_password(form.password.data)
-        db.session.add(user)
-        db.session.commit()
-        flash('You are now a registered user!')
-        return redirect('/login')
-    return render_template('register.html', title='Register')
+
+def handle_registration():
+    name = request.form.get("name")
+    email = request.form.get("email")
+    password = request.form.get("password")
+
+    # Validation (optional but recommended)
+    if not name or not email or not password:
+        flash("All fields are required.")
+        return redirect(url_for("main.signup"))
+
+    # Try to create the user
+    success, error = create_user(name, email, password)
+
+    if success:
+        user = get_user_by_email(email)
+        if user:
+            login_user(user)
+            return redirect(url_for("main.dashboard"))
+
+        # fallback (should never happen)
+        flash("User created but could not log in.")
+        return redirect(url_for("main.login"))
+
+    # If creation failed
+    flash(error)
+    return redirect(url_for("main.signup"))

@@ -8,6 +8,7 @@ dependencies = [
     "bs4>=0.0.2",
     "dotenv>=0.9.9",
     "flask>=3.1.2",
+    "flask-login>=0.6.3",
     "index-py>=0.21.16",
     "pandas>=2.3.2",
     "plotly>=6.5.0",
