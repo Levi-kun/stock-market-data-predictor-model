@@ -1,27 +1,27 @@
 from flask import request, redirect, url_for, flash
 from flask_login import login_user
-from werkzeug.security import check_password_hash
-from .auth import get_user_by_username
+from .auth import get_user_by_email  # or get_user_by_username
 
 
 def handle_login():
-    username = request.form.get("email")
+    email = request.form.get("email")  # matches input field name
     password = request.form.get("password")
     remember = request.form.get("remember") == "on"
 
-    # Optional but good practice: validate input
-    if not username or not password:
-        flash("Please enter both username and password.")
-        return redirect(url_for("login_page"))
+    # Validate input
+    if not email or not password:
+        flash("Please enter both email and password.", "error")
+        return redirect(url_for("main.login"))  # update to your login route endpoint
 
     # Fetch user from DB
-    user = get_user_by_username(username)
+    user = get_user_by_email(email)  # could also use username if login is via username
 
-    # Authentication
-    if user is None or not check_password_hash(user.password_hash, password):
-        flash("Invalid username or password")
-        return redirect(url_for("login_page"))
+    # Authenticate
+    if user is None or not user.check_password(password):
+        flash("Invalid email or password.", "error")
+        return redirect(url_for("main.login"))
 
-    # Log them in
+    # Log the user in
     login_user(user, remember=remember)
-    return redirect(url_for("index"))
+    flash(f"Welcome back, {user.username}!", "success")
+    return redirect(url_for("main.dashboard"))  # update to your main page endpoint

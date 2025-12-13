@@ -20,6 +20,6 @@ def safe_insert(sql, params=()):
 
 
 def handle_feedback(name, email, feedback):
-    print(name,email,feedback)
+    print(name, email, feedback)
     success = insert_feedback(name, email, feedback)
     return success

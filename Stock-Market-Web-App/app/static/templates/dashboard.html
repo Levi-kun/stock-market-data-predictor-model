@@ -1,33 +1,55 @@
-{% extends "base.html"%}
+{% extends "base.html" %}
 {% from "_graph_display.html" import graph_interface %}
 
 {% block content %}
-<!-- we need to create the html structure of the dashboard -->
-
-<div class="dashboard"> 
-<div class="ticker-input">
+<div class="dashboard">
+    <!-- Ticker Input Form -->
+    <div class="ticker-input">
         <form method="POST" action="/dashboard">
-    <input 
-        type="text" 
-        name="shout" 
-        placeholder="ENTER WORD" 
-        required
-        pattern="[A-Z]+"
-        title="Only ONE WORD using CAPITAL LETTERS is allowed."
-    />
+            <input 
+                type="text" 
+                name="ticker" 
+                placeholder="Enter Ticker Symbol (e.g., AAPL)" 
+                required
+                pattern="[A-Za-z]+"
+                title="Only letters are allowed"
+                value="{{ ticker or '' }}"
+            />
+            <button type="submit">Analyze Stock</button>
+        </form>
+    </div>
 
-    <button type="submit">Submit</button>
-</form>
+    <!-- Display prediction if available -->
+    {% if prediction is not none %}
+    <div class="prediction-result" style="text-align: center; margin: 20px 0; padding: 15px; background: rgba(255,255,255,0.05); border-radius: 8px;">
+        <h3 style="color: #1f77b4; margin: 0;">Prediction for {{ ticker }}</h3>
+        <p style="font-size: 24px; margin: 10px 0; color: white;">{{ prediction }}</p>
+    </div>
+    {% endif %}
 
-</div>
+    <!-- Display graphs if ticker has been analyzed -->
+    {% if ticker %}
+    <div class="dashboard-grid">
+        {{ graph_interface(graph1, ticker ~ " Stock Price - Last 30 Days") }}
+        {{ graph_interface(graph2, ticker ~ " Trading Volume") }}
+        {{ graph_interface(graph3, ticker ~ " Key Financials") }}
+    </div>
+    {% else %}
+    <div style="text-align: center; padding: 40px; color: gray;">
+        <p>Enter a stock ticker symbol above to view analysis and predictions.</p>
+    </div>
+    {% endif %}
 
-<div class="dashboard-grid">
-
-        {{ graph_interface(graph1, "Stock Amount over Stock Price") }}
-        {{ graph_interface(graph2, "__ over  __") }}
-        {{ graph_interface(graph3, "__ over __")}}
-
-</div>
-</div>
-
-{% endblock %}
+    <!-- Display flash messages -->
+    {% with messages = get_flashed_messages() %}
+        {% if messages %}
+        <div class="flash-messages" style="margin-top: 20px;">
+            {% for message in messages %}
+            <div class="alert" style="padding: 10px; margin: 10px 0; background: rgba(255,100,100,0.2); border-radius: 4px; color: #ff6b6b;">
+                {{ message }}
+            </div>
+            {% endfor %}
+        </div>
+        {% endif %}
+    {% endwith %}
+</div>{% endblock %}

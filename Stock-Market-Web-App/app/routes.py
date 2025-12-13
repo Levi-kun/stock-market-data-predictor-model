@@ -1,6 +1,6 @@
 from flask import Blueprint, render_template, request, jsonify
 from flask_login import login_required
-from .dashboard import dashboard
+from .dashboard import get_dashboard_data
 from .db import query_test
 from .feedback import handle_feedback
 from .login import handle_login
@@ -48,39 +48,35 @@ def index():
     return render_template("index.html")
 
 
-@bp.route("/dashboard", methods=["GET", "POST"])
+@bp.route("/dashboard", methods=["get", "post"])
 @login_required
-def dashboard():
-    if request.method == "POST":
-        return dashboard()
-
-    # Line chart: Price & Stock Amount over Days
-    fig1 = px.line(df, x="Day", y=["Price", "Stock Amount"], title="Stock Over Price")
-
-    # Pie chart: Sample feature distribution (matching stock theme)
-    fig2 = px.pie(
-        names=["Feature A", "Feature B", "Feature C"],
-        values=[50, 30, 20],
-        title="Feature 1 vs Stock Amount",
-    )
-
-    # Bar chart: Sentiment over stock amounts
-    fig3 = px.bar(
-        x=["Good", "Neutral", "Bad"],
-        y=[60, 25, 15],
-        title="Sentiment over Stock Amount",
-    )
-    # Convert plots to HTML
-    graph1 = fig1.to_html(full_html=False)
-    graph2 = fig2.to_html(full_html=False)
-    graph3 = fig3.to_html(full_html=False)
+def dashboard():  # <-- this is the route handler
+    """
+    Route handler for the dashboard page.
+    This function MUST return a response for Flask.
+    """
+    try:
+        data = get_dashboard_data()
+        return render_template(
+            "dashboard.html",
+            active="dashboard",
+            prediction=data.get("prediction"),
+            ticker=data.get("ticker"),
+            graph1=data.get("graph1"),
+            graph2=data.get("graph2"),
+            graph3=data.get("graph3"),
+        )
+    except Exception as e:
+        print(f"Error in dashboard route: {e}")
 
     return render_template(
         "dashboard.html",
         active="dashboard",
-        graph1=graph1,
-        graph2=graph2,
-        graph3=graph3,
+        prediction=None,
+        ticker=None,
+        graph1=None,
+        graph2=None,
+        graph3=None,
     )
 
 
