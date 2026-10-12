@@ -9,18 +9,24 @@ import time
 
 from dotenv import load_dotenv
 
-load_dotenv()
-FMP_API_KEY = os.getenv("FMP_API_KEY")
+BASE_DIR = os.path.dirname(os.path.abspath(__file__))
+load_dotenv(os.path.join(BASE_DIR, "Stock-Market-Web-App", ".env"))
+FMP_API_KEY = os.getenv("FMP_API_KEY") or os.getenv("SECRET_KEY")
+if not FMP_API_KEY:
+    raise RuntimeError("Set FMP_API_KEY in the environment or app .env file.")
 BASE_URL = "https://financialmodelingprep.com"
 api_call_count = 0
 MAX_CALLS_PER_TICKER = 15
 
-tickers = ["NVDA", "AAPL", "MSFT", "TSLA", "ORCL", "META", "GOOG", "JPM", "TSM", "XOM"]
+tickers = [
+    "NVDA", "AAPL", "MSFT", "TSLA", "ORCL", "META", "GOOG", "JPM", "TSM", "XOM",
+    "AMZN", "BRK-B", "V", "MA", "COST", "WMT", "LLY", "UNH", "AVGO", "AMD",
+]
 
 # Free tier: ~5 years historical prices max, so adjust start_date
 start_date = (datetime.today() - timedelta(days=5 * 365 + 1)).strftime("%Y-%m-%d")
 end_date = datetime.today().strftime("%Y-%m-%d")
-output_dir = "datasets_fmp_free"
+output_dir = os.path.join(BASE_DIR, "datasets_fmp_free")
 
 os.makedirs(output_dir, exist_ok=True)
 
@@ -38,13 +44,15 @@ def fetch_fmp(endpoint, params=None):
         api_call_count += 1
         print(f"      [API Call #{api_call_count}]", end=" ")
 
-        response = requests.get(f"{BASE_URL}/{endpoint}", params=params)
+        response = requests.get(f"{BASE_URL}/{endpoint}", params=params, timeout=30)
         response.raise_for_status()
         data = response.json()
         time.sleep(0.5)
         return data
     except Exception as e:
-        print(f"Error: {e}")
+        status_code = getattr(getattr(e, "response", None), "status_code", None)
+        error_detail = f"HTTP {status_code}" if status_code else type(e).__name__
+        print(f"Error fetching {endpoint}: {error_detail}")
         return None
 
 

@@ -3,28 +3,104 @@
 
 {% block content %}
 <div class="dashboard">
-    <!-- Ticker Input Form -->
-    <div class="ticker-input">
-        <form method="POST" action="/dashboard">
-            <input 
-                type="text" 
-                name="ticker" 
-                placeholder="Enter Ticker Symbol (e.g., AAPL)" 
+    <section class="ticker-input" aria-labelledby="ticker-form-title">
+        <h2 id="ticker-form-title">Analyze a stock</h2>
+        <form class="ticker-form" method="POST" action="{{ url_for('main.dashboard') }}">
+            <label for="ticker-symbol">Ticker symbol</label>
+            <input
+                id="ticker-symbol"
+                type="text"
+                name="ticker"
+                placeholder="AAPL"
+                autocomplete="off"
+                maxlength="10"
+                pattern="[A-Za-z][A-Za-z.-]{0,9}"
+                title="Use letters, periods, or hyphens"
                 required
-                pattern="[A-Za-z]+"
-                title="Only letters are allowed"
                 value="{{ ticker or '' }}"
             />
-            <button type="submit">Analyze Stock</button>
+            <button type="submit">Analyze stock <span aria-hidden="true">→</span></button>
         </form>
-    </div>
+    </section>
 
     <!-- Display prediction if available -->
     {% if prediction is not none %}
-    <div class="prediction-result" style="text-align: center; margin: 20px 0; padding: 15px; background: rgba(255,255,255,0.05); border-radius: 8px;">
-        <h3 style="color: #1f77b4; margin: 0;">Prediction for {{ ticker }}</h3>
-        <p style="font-size: 24px; margin: 10px 0; color: white;">{{ prediction }}</p>
-    </div>
+    <section class="prediction-result" aria-live="polite">
+        <h2>Prediction for {{ ticker }}</h2>
+        <p class="prediction-value">
+            {% if prediction is number %}{{ "%.2f"|format(prediction) }}{% else %}{{ prediction }}{% endif %}
+        </p>
+        <p class="prediction-scale"><span>-1 = buybacks</span><span>0 = neutral</span><span>+1 = more shares issued</span></p>
+    </section>
+    {% endif %}
+
+    {% if outlook %}
+    <section class="yahoo-outlook" aria-labelledby="yahoo-outlook-title">
+        <div class="outlook-heading">
+            <h2 id="yahoo-outlook-title">Yahoo analyst outlook</h2>
+            <span>Current estimates and recent headlines</span>
+        </div>
+        <dl class="outlook-grid">
+            <div class="outlook-metric">
+                <dt>Next-year EPS estimate</dt>
+                <dd>
+                    {% if outlook.eps_estimate == outlook.eps_estimate %}
+                        ${{ "%.2f"|format(outlook.eps_estimate) }}
+                        <span>{% if outlook.eps_growth == outlook.eps_growth %}{{ "%.1f"|format(outlook.eps_growth * 100) }}% growth{% endif %}</span>
+                    {% else %}N/A{% endif %}
+                </dd>
+            </div>
+            <div class="outlook-metric">
+                <dt>Next-year revenue estimate</dt>
+                <dd>
+                    {% if outlook.revenue_estimate == outlook.revenue_estimate %}
+                        ${{ "%.1f"|format(outlook.revenue_estimate / 1000000000) }}B
+                        <span>{% if outlook.revenue_growth == outlook.revenue_growth %}{{ "%.1f"|format(outlook.revenue_growth * 100) }}% growth{% endif %}</span>
+                    {% else %}N/A{% endif %}
+                </dd>
+            </div>
+            <div class="outlook-metric">
+                <dt>Analyst consensus</dt>
+                <dd>
+                    {{ outlook.recommendation_label or "N/A" }}
+                    <span>
+                        Buy {{ outlook.rating_counts.get("strongBuy", 0) + outlook.rating_counts.get("buy", 0) }} ·
+                        Hold {{ outlook.rating_counts.get("hold", 0) }} ·
+                        Sell {{ outlook.rating_counts.get("sell", 0) + outlook.rating_counts.get("strongSell", 0) }}
+                    </span>
+                </dd>
+            </div>
+            <div class="outlook-metric">
+                <dt>Mean price target</dt>
+                <dd>
+                    {% if outlook.target_mean == outlook.target_mean %}${{ "%.2f"|format(outlook.target_mean) }}{% else %}N/A{% endif %}
+                    <span>{% if outlook.target_upside == outlook.target_upside %}{{ "%+.1f"|format(outlook.target_upside * 100) }}% vs. current price{% endif %}</span>
+                </dd>
+            </div>
+            <div class="outlook-metric">
+                <dt>Headline sentiment</dt>
+                <dd>
+                    {% if outlook.news_sentiment == outlook.news_sentiment %}{{ "%+.2f"|format(outlook.news_sentiment) }}{% else %}N/A{% endif %}
+                    <span>Recent Yahoo Finance headlines</span>
+                </dd>
+            </div>
+            <div class="outlook-metric">
+                <dt>Supply-shortage headlines</dt>
+                <dd>{{ outlook.shortage_mentions }}</dd>
+            </div>
+        </dl>
+        {% if outlook.headlines %}
+        <ul class="outlook-headlines">
+            {% for headline in outlook.headlines %}
+            <li>
+                <a href="{{ headline.link }}" target="_blank" rel="noopener noreferrer">{{ headline.title }}</a>
+                <span>{{ headline.publisher }}</span>
+            </li>
+            {% endfor %}
+        </ul>
+        {% endif %}
+        <p class="outlook-note">Analyst estimates are current consensus, not guaranteed results.</p>
+    </section>
     {% endif %}
 
     <!-- Display graphs if ticker has been analyzed -->
@@ -35,7 +111,7 @@
         {{ graph_interface(graph3, ticker ~ " Key Financials") }}
     </div>
     {% else %}
-    <div style="text-align: center; padding: 40px; color: gray;">
+    <div class="dashboard-empty">
         <p>Enter a stock ticker symbol above to view analysis and predictions.</p>
     </div>
     {% endif %}

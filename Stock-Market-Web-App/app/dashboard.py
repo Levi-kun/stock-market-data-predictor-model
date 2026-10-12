@@ -4,6 +4,10 @@ import yfinance as yf
 import plotly.express as px
 import plotly.graph_objects as go
 import os
+import math
+import sys
+
+from .ticker_store import get_prediction_history, register_ticker, save_prediction
 
 try:
     from .algorith import StockPredictor
@@ -14,6 +18,11 @@ except ImportError:
 # --- Setup Paths & Model ---
 BASE_DIR = os.path.dirname(os.path.abspath(__file__))
 ROOT_DIR = os.path.abspath(os.path.join(BASE_DIR, ".."))
+PROJECT_ROOT = os.path.abspath(os.path.join(ROOT_DIR, ".."))
+if PROJECT_ROOT not in sys.path:
+    sys.path.insert(0, PROJECT_ROOT)
+
+from yahoo_data import build_live_model_features, fetch_yahoo_outlook
 
 MODEL_PATH = os.path.join(ROOT_DIR, "alg/model.pkl")
 SCALER_PATH = os.path.join(ROOT_DIR, "alg/scaler.pkl")
@@ -28,6 +37,39 @@ if StockPredictor:
         print(f"Warning: StockPredictor model could not load. {e}")
 
 
+def build_stock_data(info, cashflow):
+    def get_val(key):
+        if cashflow is not None and not cashflow.empty and key in cashflow.index:
+            value = cashflow.loc[key].iloc[0]
+            return 0 if pd.isna(value) else value
+        return 0
+
+    return {
+        "marketPrice": info.get("currentPrice", 0) or 0,
+        "sharesOutstanding": info.get("sharesOutstanding", 0) or 0,
+        "freeCashFlow": info.get("freeCashflow", 0) or 0,
+        "operatingCashFlow": info.get("operatingCashflow", 0) or 0,
+        "totalDebt": info.get("totalDebt", 0) or 0,
+        "dividendsPaid": get_val("Cash Dividends Paid"),
+        "netIncome": info.get("netIncomeToCommon", 0) or 0,
+        "employees": info.get("fullTimeEmployees", 0) or 0,
+        "stockIssued": get_val("Issuance Of Capital Stock"),
+        "stockRepurchased": get_val("Repurchase Of Capital Stock"),
+    }
+
+
+def predict_ticker(ticker):
+    if predictor is None:
+        raise RuntimeError("Prediction model is unavailable.")
+
+    stock = yf.Ticker(ticker)
+    info = stock.info
+    result = predictor.predict(
+        pd.DataFrame([build_live_model_features(stock, info)])
+    )
+    return float(result[0])
+
+
 def get_dashboard_data():
     """
     Processes the dashboard logic and returns all data needed for rendering.
@@ -39,6 +81,7 @@ def get_dashboard_data():
         "graph1": None,
         "graph2": None,
         "graph3": None,
+        "outlook": None,
     }
 
     if request.method == "POST":
@@ -62,6 +105,8 @@ def get_dashboard_data():
                     )
                     return data
 
+                register_ticker(ticker)
+
                 # Safely get cashflow
                 try:
                     cashflow = stock.cashflow
@@ -69,34 +114,21 @@ def get_dashboard_data():
                     cashflow = pd.DataFrame()
 
                 # 2. Prepare Data for Model
-                def get_val(df, key):
-                    if df is not None and not df.empty and key in df.index:
-                        val = df.loc[key].iloc[0]
-                        # Handle NaN values
-                        return 0 if pd.isna(val) else val
-                    return 0
-
-                stock_data = {
-                    "marketPrice": info.get("currentPrice", 0) or 0,
-                    "sharesOutstanding": info.get("sharesOutstanding", 0) or 0,
-                    "freeCashFlow": info.get("freeCashflow", 0) or 0,
-                    "operatingCashFlow": info.get("operatingCashflow", 0) or 0,
-                    "totalDebt": info.get("totalDebt", 0) or 0,
-                    "dividendsPaid": get_val(cashflow, "Cash Dividends Paid"),
-                    "netIncome": info.get("netIncomeToCommon", 0) or 0,
-                    "employees": info.get("fullTimeEmployees", 0) or 0,
-                    "stockIssued": get_val(cashflow, "Issuance Of Capital Stock"),
-                    "stockRepurchased": get_val(
-                        cashflow, "Repurchase Of Capital Stock"
-                    ),
-                }
+                stock_data = build_stock_data(info, cashflow)
+                data["outlook"] = fetch_yahoo_outlook(ticker, stock, info)
 
                 # 3. Predict
                 if predictor:
                     try:
-                        df_input = pd.DataFrame([stock_data])
+                        features = build_live_model_features(stock, info)
+                        df_input = pd.DataFrame([features])
                         result = predictor.predict(df_input)
-                        data["prediction"] = result[0]
+                        prediction_value = float(result[0])
+                        if math.isfinite(prediction_value):
+                            data["prediction"] = prediction_value
+                            save_prediction(ticker, prediction_value)
+                        else:
+                            data["prediction"] = "N/A"
                     except Exception as e:
                         print(f"Prediction error: {e}")
                         data["prediction"] = "N/A"
@@ -108,15 +140,40 @@ def get_dashboard_data():
                     hist_reset = hist.reset_index()
 
                     # -- Graph 1: Price --
-                    fig1 = px.line(
-                        hist_reset,
-                        x="Date",
-                        y="Close",
-                        title=f"{ticker} Stock Price - Last 30 Days",
-                        labels={"Close": "Price ($)", "Date": "Date"},
+                    price_dates = hist_reset["Date"].dt.strftime("%Y-%m-%d")
+                    fig1 = go.Figure()
+                    fig1.add_trace(
+                        go.Scatter(
+                            x=price_dates,
+                            y=hist_reset["Close"],
+                            name="Stock price",
+                            line=dict(color="#1f77b4", width=2),
+                        )
                     )
-                    fig1.update_traces(line_color="#1f77b4", line_width=2)
+                    prediction_history = get_prediction_history(ticker, days=30)
+                    if prediction_history:
+                        fig1.add_trace(
+                            go.Scatter(
+                                x=[row[0].isoformat() for row in prediction_history],
+                                y=[row[1] for row in prediction_history],
+                                name="Predictor value",
+                                yaxis="y2",
+                                line=dict(color="#176b50", width=2),
+                            )
+                        )
                     fig1.update_layout(
+                        title=f"{ticker} Stock Price and Predictor Value",
+                        xaxis_title="Date",
+                        yaxis=dict(title="Price ($)"),
+                        yaxis2=dict(
+                            title="Predictor value",
+                            overlaying="y",
+                            side="right",
+                            range=[-1, 1],
+                            tickvals=[-1, 0, 1],
+                            ticktext=["-1", "0", "+1"],
+                            zeroline=True,
+                        ),
                         hovermode="x unified",
                         plot_bgcolor="rgba(0,0,0,0)",
                         paper_bgcolor="rgba(0,0,0,0)",

@@ -65,6 +65,7 @@ def dashboard():  # <-- this is the route handler
             graph1=data.get("graph1"),
             graph2=data.get("graph2"),
             graph3=data.get("graph3"),
+            outlook=data.get("outlook"),
         )
     except Exception as e:
         print(f"Error in dashboard route: {e}")
@@ -77,6 +78,7 @@ def dashboard():  # <-- this is the route handler
         graph1=None,
         graph2=None,
         graph3=None,
+        outlook=None,
     )
 
 
@@ -90,7 +92,7 @@ def login():
 @bp.route("/register", methods=["GET", "POST"])
 def register():
     if request.method == "POST":
-        handle_registration()  # the backend for the /register POST event is in app/register.py
+        return handle_registration()  # the backend for the /register POST event is in app/register.py
     return render_template("register.html", active="login")
 
 

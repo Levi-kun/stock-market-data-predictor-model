@@ -7,6 +7,14 @@
   <div class="authCard">
     <h2>{{page_title}}</h2>
 
+    {% with messages = get_flashed_messages(with_categories=true) %}
+      {% for category, message in messages %}
+        <div class="flash-message flash-{{ category }}" role="{{ 'alert' if category == 'error' else 'status' }}" aria-live="{{ 'assertive' if category == 'error' else 'polite' }}">
+          {{ message }}
+        </div>
+      {% endfor %}
+    {% endwith %}
+
     {% block auth_form %} {% endblock %}
 
 

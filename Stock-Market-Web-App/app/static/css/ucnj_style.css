@@ -355,6 +355,25 @@ a.my-home-link:focus {
     box-shadow: 0 16px 40px rgba(0, 47, 255, 0.08);
 }
 
+.flash-message {
+    margin: 1rem 0;
+    padding: 0.85rem 1rem;
+    border: 1px solid transparent;
+    border-radius: 6px;
+}
+
+.flash-success {
+    color: #176b50;
+    background: #e8f6f0;
+    border-color: #9ae8ce;
+}
+
+.flash-error {
+    color: #842222;
+    background: #fbecec;
+    border-color: #eb9e9e;
+}
+
 /* Header with gradient */
 .auth-header {
     text-align: center;
@@ -551,4 +570,263 @@ a.my-home-link:focus {
 
 .feedback-form button:hover {
     background: #000002;
+}
+
+.dashboard {
+    --dashboard-ink: #1f2d29;
+    --dashboard-muted: #62716c;
+    --dashboard-line: #d5dfda;
+    --dashboard-accent: #176b50;
+    --dashboard-accent-dark: #10543e;
+    max-width: 1200px;
+    margin: 0 auto;
+    color: var(--dashboard-ink);
+}
+
+.ticker-input {
+    max-width: 720px;
+    margin: 2.5rem auto 2rem;
+}
+
+.ticker-input h2 {
+    margin: 0 0 0.75rem;
+    font-size: 1.15rem;
+    font-weight: 700;
+}
+
+.ticker-form {
+    display: grid;
+    grid-template-columns: auto minmax(0, 1fr) auto;
+    align-items: center;
+    gap: 0.85rem;
+    padding: 0.55rem;
+    border: 1px solid var(--dashboard-line);
+    border-radius: 8px;
+    background: #fff;
+    box-shadow: 0 8px 24px rgba(31, 45, 41, 0.08);
+    transition: border-color 160ms ease, box-shadow 160ms ease;
+}
+
+.ticker-form:focus-within {
+    border-color: var(--dashboard-accent);
+    box-shadow: 0 0 0 3px rgba(23, 107, 80, 0.14);
+}
+
+.ticker-form label {
+    padding-left: 0.75rem;
+    color: var(--dashboard-muted);
+    font-size: 0.82rem;
+    font-weight: 700;
+    white-space: nowrap;
+}
+
+.ticker-form input {
+    width: 100%;
+    min-width: 0;
+    height: 46px;
+    padding: 0 0.75rem;
+    border: 0;
+    border-left: 1px solid var(--dashboard-line);
+    border-radius: 0;
+    outline: none;
+    background: transparent;
+    color: var(--dashboard-ink);
+    font: inherit;
+    font-size: 1rem;
+    font-weight: 700;
+    text-transform: uppercase;
+}
+
+.ticker-form input::placeholder {
+    color: #9aa8a2;
+    font-weight: 400;
+}
+
+.ticker-form button {
+    display: inline-flex;
+    min-height: 46px;
+    align-items: center;
+    justify-content: center;
+    gap: 0.65rem;
+    padding: 0 1.1rem;
+    border: 0;
+    border-radius: 6px;
+    background: var(--dashboard-accent);
+    color: #fff;
+    font: inherit;
+    font-size: 0.9rem;
+    font-weight: 700;
+    white-space: nowrap;
+    cursor: pointer;
+    transition: background-color 160ms ease, transform 160ms ease;
+}
+
+.ticker-form button:hover {
+    transform: translateY(-1px);
+    background: var(--dashboard-accent-dark);
+}
+
+.ticker-form button:focus-visible {
+    outline: 3px solid rgba(23, 107, 80, 0.3);
+    outline-offset: 2px;
+}
+
+.prediction-result {
+    max-width: 720px;
+    margin: 0 auto 2rem;
+    padding: 1.25rem 1.5rem;
+    border: 1px solid var(--dashboard-line);
+    border-radius: 8px;
+    background: #f6f9f7;
+    text-align: center;
+}
+
+.prediction-result h2 {
+    margin: 0;
+    color: var(--dashboard-muted);
+    font-size: 0.9rem;
+    font-weight: 700;
+}
+
+.prediction-value {
+    margin: 0.35rem 0 0.55rem;
+    color: var(--dashboard-ink);
+    font-size: 2rem;
+    font-weight: 700;
+    font-variant-numeric: tabular-nums;
+}
+
+.prediction-scale {
+    display: flex;
+    flex-wrap: wrap;
+    justify-content: center;
+    gap: 0.35rem 1rem;
+    margin: 0;
+    color: var(--dashboard-muted);
+    font-size: 0.78rem;
+}
+
+.yahoo-outlook {
+    margin: 0 auto 2rem;
+    padding: 1.25rem 0;
+    border-top: 1px solid var(--dashboard-line);
+    border-bottom: 1px solid var(--dashboard-line);
+}
+
+.outlook-heading {
+    display: flex;
+    flex-wrap: wrap;
+    align-items: baseline;
+    justify-content: space-between;
+    gap: 0.4rem 1rem;
+}
+
+.outlook-heading h2 {
+    margin: 0;
+    font-size: 1.05rem;
+}
+
+.outlook-heading > span,
+.outlook-note {
+    color: var(--dashboard-muted);
+    font-size: 0.8rem;
+}
+
+.outlook-grid {
+    display: grid;
+    grid-template-columns: repeat(3, minmax(0, 1fr));
+    gap: 0.5rem 1.5rem;
+    margin: 0.75rem 0 0;
+}
+
+.outlook-metric {
+    min-width: 0;
+    padding: 0.8rem 0;
+    border-bottom: 1px solid var(--dashboard-line);
+}
+
+.outlook-metric dt {
+    color: var(--dashboard-muted);
+    font-size: 0.78rem;
+    font-weight: 700;
+}
+
+.outlook-metric dd {
+    margin: 0.25rem 0 0;
+    overflow-wrap: anywhere;
+    font-size: 1.1rem;
+    font-weight: 700;
+    font-variant-numeric: tabular-nums;
+}
+
+.outlook-metric dd span,
+.outlook-headlines li span {
+    display: block;
+    margin-top: 0.2rem;
+    color: var(--dashboard-muted);
+    font-size: 0.78rem;
+    font-weight: 400;
+}
+
+.outlook-headlines {
+    display: grid;
+    gap: 0.65rem;
+    margin: 1rem 0 0;
+    padding: 0;
+    list-style: none;
+}
+
+.outlook-headlines li {
+    min-width: 0;
+    overflow-wrap: anywhere;
+}
+
+.outlook-headlines a {
+    color: var(--dashboard-accent-dark);
+    font-weight: 600;
+}
+
+.outlook-note {
+    margin: 0.9rem 0 0;
+}
+
+.dashboard-empty {
+    padding: 2.5rem 1rem;
+    color: var(--dashboard-muted);
+    text-align: center;
+}
+
+@media (max-width: 560px) {
+    .outlook-grid {
+        grid-template-columns: repeat(2, minmax(0, 1fr));
+        gap: 0.35rem 1rem;
+    }
+
+    .ticker-input {
+        margin-top: 1.5rem;
+    }
+
+    .ticker-form {
+        grid-template-columns: minmax(0, 1fr) auto;
+        gap: 0.4rem;
+    }
+
+    .ticker-form label {
+        grid-column: 1 / -1;
+        padding: 0.25rem 0.55rem 0;
+    }
+
+    .ticker-form input {
+        border-left: 0;
+    }
+
+    .ticker-form button {
+        padding: 0 0.8rem;
+    }
+}
+
+@media (max-width: 380px) {
+    .outlook-grid {
+        grid-template-columns: minmax(0, 1fr);
+    }
 }

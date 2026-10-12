@@ -42,6 +42,9 @@ def create_user(username, email, password):
     Creates a new user.
     Returns (UserObj, None) if successful, (None, error_msg) if failed.
     """
+    if not isinstance(password, str) or not password:
+        return None, "Password is required."
+
     if user_exists(username=username):
         return None, "A user with that username already exists."
     if user_exists(email=email):

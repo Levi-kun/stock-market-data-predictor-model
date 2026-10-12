@@ -94,6 +94,12 @@ def add_engineered_features(df: pd.DataFrame) -> pd.DataFrame:
     df["feature_debt_per_share"] = df["totalDebt"] / (df["sharesOutstanding"] + 1e-9)
     df["feature_dilution_ratio"] = df["stockIssued"] / (df["sharesOutstanding"] + 1e-9)
     df["feature_price_to_earnings_inverse"] = df["metrics_annual_earningsYield"]
+    df["feature_free_cash_flow_yield"] = df["freeCashFlow"] / (
+        df["market_derived_shares"] + 1e-9
+    )
+    df["feature_operating_cash_flow_yield"] = df["operatingCashFlow"] / (
+        df["market_derived_shares"] + 1e-9
+    )
 
     return df
 
@@ -140,9 +146,12 @@ class StockPredictor:
         return df
 
     def predict(self, df: pd.DataFrame):
-        df = self.preprocess(df)
+        if set(self.col_order).issubset(df.columns):
+            df = df[self.col_order]
+        else:
+            df = self.preprocess(df)
         X = self.scaler.transform(df)
-        return self.model.predict(X)
+        return np.clip(self.model.predict(X), -1.0, 1.0)
 
 
 # ======================================================

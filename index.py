@@ -2,28 +2,27 @@ import os
 import ast
 import numpy as np
 import pandas as pd
+from sklearn.ensemble import ExtraTreesRegressor
 from sklearn.metrics import r2_score
-from sklearn.linear_model import LinearRegression
-from sklearn.model_selection import train_test_split
+from sklearn.linear_model import Ridge
+from sklearn.model_selection import GroupKFold, GroupShuffleSplit
 from sklearn.preprocessing import StandardScaler
+from sklearn.impute import SimpleImputer
+from sklearn.pipeline import make_pipeline
 import joblib
+
+from yahoo_data import FEATURE_COLS, YAHOO_DATA_DIR, download_yahoo_data, load_yahoo_training_data
 
 
 class DilutionModel:
-    DESIRED_COLS = [
-        "market_derived_shares",
-        "cashflow_annual_netStockIssuance",
-        "balance_annual_totalDebt",
-        "cashflow_annual_commonStockRepurchased",
-        "profile_lastDividend",
-        "metrics_annual_earningsYield",
-        "profile_fullTimeEmployees",
-        "metrics_annual_peRatio",
-    ]
+    FEATURE_COLS = FEATURE_COLS
 
-    def __init__(self, data_path="./datasets_fmp_free/", alg_path="alg"):
-        self.data_path = data_path
-        self.alg_path = alg_path
+    def __init__(self, data_path=None, alg_path=None):
+        base_path = os.path.dirname(os.path.abspath(__file__))
+        self.data_path = data_path or str(YAHOO_DATA_DIR)
+        self.alg_path = alg_path or os.path.join(
+            base_path, "Stock-Market-Web-App", "alg"
+        )
         self.model = None
         self.scaler = None
         self.columns = None
@@ -63,118 +62,93 @@ class DilutionModel:
         return np.nan
 
     # ==================================================
-    # FEATURE ENGINEERING
-    # ==================================================
-    def engineer_features(self, df):
-        """Generate meaningful predictive features."""
-
-        df["feature_debt_per_share"] = (
-            df["balance_annual_totalDebt"] / df["market_derived_shares"]
-        )
-
-        df["feature_dilution_ratio"] = df["cashflow_annual_netStockIssuance"] / (
-            abs(df["cashflow_annual_commonStockRepurchased"]) + 1
-        )
-
-        df["feature_price_to_earnings_inverse"] = 1 / (
-            df["metrics_annual_earningsYield"] + 1e-9
-        )
-
-        df["feature_log_totalDebt"] = np.log(df["balance_annual_totalDebt"] + 1)
-        df["feature_log_shares"] = np.log(df["market_derived_shares"] + 1)
-
-        # time-series change features
-        for col in self.DESIRED_COLS:
-            if col in df.columns:
-                df[f"{col}_change"] = df[col].pct_change()
-                df[f"{col}_prev1"] = df[col].shift(1)
-                df[f"{col}_prev2"] = df[col].shift(2)
-
-        df["feature_dividend_change"] = df["profile_lastDividend"].pct_change()
-        df["feature_earningsYield_change"] = df[
-            "metrics_annual_earningsYield"
-        ].pct_change()
-
-        return df
-
-    # ==================================================
     # LOAD FINANCIAL DATA
     # ==================================================
     def load_financial_data(self):
-        dfs = []
-
-        for filename in os.listdir(self.data_path):
-            if not filename.endswith(".csv"):
-                continue
-
-            print(f"Loading: {filename}")
-
-            try:
-                df = pd.read_csv(
-                    os.path.join(self.data_path, filename), low_memory=False
-                )
-
-                available = [c for c in self.DESIRED_COLS if c in df.columns]
-                reduced_df = df[available].copy()
-                reduced_df = reduced_df.map(self.clean_numeric)
-
-                dfs.append(reduced_df)
-            except Exception as e:
-                print(f"Failed reading {filename}: {e}")
-
-        if not dfs:
-            raise RuntimeError("❗ No usable financial data found.")
-
-        df = pd.concat(dfs, ignore_index=True)
-        df = df.apply(pd.to_numeric, errors="coerce")
-        df = self.engineer_features(df)
-
-        return df
+        return load_yahoo_training_data(self.data_path)
 
     # ==================================================
     # TARGET LABEL
     # ==================================================
     def compute_target(self, df):
-        df["netIssuance"] = (
-            df["cashflow_annual_netStockIssuance"]
-            - df["cashflow_annual_commonStockRepurchased"]
-        )
-
-        max_abs = df["netIssuance"].abs().max()
-        df["dilution_signal"] = (df["netIssuance"] / max_abs).clip(-1, 1)
-
+        df = df.sort_values(["ticker", "fiscal_date"]).copy()
+        df["future_net_issuance"] = df.groupby("ticker")["net_issuance"].shift(-1)
+        df = df.dropna(subset=["future_net_issuance"])
+        df["dilution_signal"] = np.sign(df["future_net_issuance"])
         return df
 
     # ==================================================
     # TRAINING
     # ==================================================
     def train(self, df):
-        df = df.dropna(subset=["dilution_signal"])
-        df = df.select_dtypes(include=[np.number])
-
-        X = df.drop(columns=["dilution_signal"])
+        required = ["dilution_signal", "ticker"]
+        df = df.replace([np.inf, -np.inf], np.nan).dropna(subset=required)
+        X = df[self.FEATURE_COLS]
         y = df["dilution_signal"]
 
-        X = X.replace([np.inf, -np.inf], np.nan).dropna()
-        y = y.loc[X.index]
+        splitter = GroupShuffleSplit(n_splits=1, test_size=0.25, random_state=42)
+        train_indices, test_indices = next(
+            splitter.split(X, y, groups=df["ticker"])
+        )
+        evaluation_scaler = SimpleImputer(strategy="median", add_indicator=True)
+        X_train = evaluation_scaler.fit_transform(X.iloc[train_indices])
+        X_test = evaluation_scaler.transform(X.iloc[test_indices])
+        evaluation_model = ExtraTreesRegressor(
+            n_estimators=300,
+            max_depth=6,
+            min_samples_leaf=10,
+            max_features=0.8,
+            random_state=42,
+        )
+        evaluation_model.fit(X_train, y.iloc[train_indices])
+        preds = evaluation_model.predict(X_test)
+        score = r2_score(y.iloc[test_indices], preds)
 
-        X_train, X_test, y_train, y_test = train_test_split(X, y, test_size=0.2)
+        cross_validation_scores = []
+        training_features = X.iloc[train_indices]
+        training_targets = y.iloc[train_indices]
+        training_groups = df["ticker"].iloc[train_indices]
+        for fold_train, fold_test in GroupKFold(n_splits=5).split(
+            training_features, training_targets, groups=training_groups
+        ):
+            fold_scaler = SimpleImputer(strategy="median", add_indicator=True)
+            fold_train_scaled = fold_scaler.fit_transform(
+                training_features.iloc[fold_train]
+            )
+            fold_test_scaled = fold_scaler.transform(
+                training_features.iloc[fold_test]
+            )
+            fold_model = ExtraTreesRegressor(
+                n_estimators=300,
+                max_depth=6,
+                min_samples_leaf=10,
+                max_features=0.8,
+                random_state=42,
+            ).fit(fold_train_scaled, training_targets.iloc[fold_train])
+            cross_validation_scores.append(
+                r2_score(
+                    training_targets.iloc[fold_test],
+                    fold_model.predict(fold_test_scaled),
+                )
+            )
+        cross_validation_score = float(np.mean(cross_validation_scores))
 
-        self.scaler = StandardScaler()
-        X_train_scaled = self.scaler.fit_transform(X_train)
-        X_test_scaled = self.scaler.transform(X_test)
-
-        self.model = LinearRegression()
-        self.model.fit(X_train_scaled, y_train)
-
-        preds = self.model.predict(X_test_scaled)
-        score = r2_score(y_test, preds)
+        self.scaler = SimpleImputer(strategy="median", add_indicator=True).fit(X)
+        self.model = ExtraTreesRegressor(
+            n_estimators=300,
+            max_depth=6,
+            min_samples_leaf=10,
+            max_features=0.8,
+            random_state=42,
+        ).fit(self.scaler.transform(X), y)
 
         print("=====================================")
-        print(f"MODEL TRAINED – R²: {score:.4f}")
+        print(f"MODEL TRAINED – ticker holdout R²: {score:.4f}")
+        print(f"5-fold training ticker R²: {cross_validation_score:.4f}")
+        print(f"Training samples: {len(X)} across {df['ticker'].nunique()} tickers")
         print("=====================================")
 
-        self.columns = list(X.columns)
+        self.columns = self.FEATURE_COLS
         self.save_model()
 
         return score
@@ -192,6 +166,8 @@ class DilutionModel:
     # FULL TRAINING PIPELINE
     # ==================================================
     def run_full_training(self):
+        if not any(name.endswith("_annual.csv") for name in os.listdir(self.data_path)):
+            download_yahoo_data(output_dir=self.data_path)
         df = self.load_financial_data()
         df = self.compute_target(df)
         return self.train(df)
