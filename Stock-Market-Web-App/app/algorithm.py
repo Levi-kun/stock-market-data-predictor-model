@@ -6,7 +6,7 @@ import os
 
 
 # ======================================================
-# What does algorith.py do? (yeah I'm to lazy to rename the file)
+# What does algorithm.py do? (fixed)
 # ======================================================
 
 

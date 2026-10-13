@@ -38,5 +38,5 @@ def query_test(sql, params=()):
     conn = get_db()
     with conn.cursor() as cur:
         cur.execute(sql, params)
-        row = cur.fethcone()
+        row = cur.fetchone()
         return True if row else False
